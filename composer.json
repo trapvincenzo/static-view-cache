@@ -1,0 +1,23 @@
+{
+    "name": "trapvincenzo/static-view-cache",
+    "description": "Static view cache for laravel 4",
+    "keywords": ["laravel", "laravel4", "cache", "view"],
+    "license": "MIT",
+    "version": "1.0",
+    "authors": [
+        {
+            "name": "Vincenzo Trapani",
+            "email": "trapvincenzo@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0",
+        "illuminate/support": "4.2.*"
+    },
+    "autoload": {
+        "psr-0": {
+            "Trapvincenzo\\StaticViewCache": "src/"
+        }
+    },
+    "minimum-stability": "stable"
+}
