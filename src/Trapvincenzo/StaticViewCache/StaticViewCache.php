@@ -42,7 +42,7 @@ class StaticViewCache extends FileViewFinder
     {
         $filename = $this->getFilename($name, $id);
 
-        if (!$this->files->exists($filename) || \Config::get('view.use_static_view_cache', false) === true)
+        if (!$this->files->exists($filename) || \Config::get('view.ignore_static_view_cache', false) === true)
         {
             return true;
         }
