@@ -16,13 +16,19 @@ class StaticViewCache extends FileViewFinder
      * @return string
      */
     public function render($name, $id, $data)
-    {   
+    {
         $directory = $this->getPath();
 
         if (!$this->files->isDirectory($directory)) {
             $this->files->makeDirectory($directory);
         }
 
+        /**
+         * if $id is explicitly set to null, auto generate hash
+         */
+        if ($id === null) {
+            $id = $name . md5(serialize($data), true);
+        }
 
         $filename = $this->getFilename($name, $id);
 
@@ -83,7 +89,7 @@ class StaticViewCache extends FileViewFinder
 
     /**
      * Gets the cache path
-     * 
+     *
      * @return string
      */
     private function getPath()
@@ -97,7 +103,7 @@ class StaticViewCache extends FileViewFinder
      * @return bool
      */
     public function flush()
-    {   
+    {
         if ($this->files->isDirectory($this->getPath())) {
             $this->files->cleanDirectory($this->getPath());
         } else {
@@ -109,7 +115,7 @@ class StaticViewCache extends FileViewFinder
 
     /**
      * Gets the static filename
-     * 
+     *
      * @param string $name
      * @param string $id
      * @return string
