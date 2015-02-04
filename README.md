@@ -4,7 +4,7 @@ Suppose to include a view (with dynamic data) inside another view:
 
 ```php
 <ul>
-	@include('car', [$car])
+	@include('cardetail', ['car' => $car])
 </ul>
 ``` 
 
