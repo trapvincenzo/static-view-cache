@@ -94,7 +94,7 @@ class StaticViewCache extends FileViewFinder
      */
     private function getPath($path)
     {
-        return storage_path(). '/views/' . $path .'/' );
+        return storage_path(). '/views/' . $path .'/';
     }
 
     /**
