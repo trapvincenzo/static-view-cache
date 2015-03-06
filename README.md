@@ -46,7 +46,7 @@ Register the service provider (app/config/app.php):
 Replace the @include statement with:
 
 ```php
-StaticViewCache::render($viewName, $id, $data)
+StaticViewCache::render($viewName, $id, $data , $path )
 ```
 
 string **$viewName** view name
@@ -54,6 +54,8 @@ string **$viewName** view name
 string **$id** unique identifier for the view (different for each iteration)
 
 array **$data** data to use inside the view
+
+[optional] string **$path** define path inside storage_folder().'/views/' (default 'static')
 
 
 Enjoy!
