@@ -5,8 +5,10 @@ use Illuminate\View\FileViewFinder;
  * @author Vincenzo Trapani <trapvincenzo@gmail.com>
  *
  **/
-class StaticViewCache extends FileViewFinder
+class StaticViewCache  extends FileViewFinder
 {
+    protected $target = null;
+
     /**
      * Gets the html for the requested view
      *
@@ -15,13 +17,15 @@ class StaticViewCache extends FileViewFinder
      * @param array $data
      * @return string
      */
-    public function render($name, $id, $data, $path='static')
+    public function render($name, $id, $data, $path = 'static')
     {
-        $directory = $this->getPath($path);
-
-        if (!$this->files->isDirectory($directory)) {
-            $this->files->makeDirectory($directory);
+   
+        if (is_null($this->target)) {
+            $this->target = $this->getTarget();
+            $this->target->init($path);
         }
+
+
 
         /**
          * if $id is explicitly set to null, auto generate hash
@@ -48,15 +52,9 @@ class StaticViewCache extends FileViewFinder
     {
         $filename = $this->getFilename($name, $id, $path);
 
-        if (!$this->files->exists($filename) || \Config::get('view.ignore_static_view_cache', false) === true)
-        {
-            return true;
-        }
+        return $this->target->isExpired($name, $filename);
 
-        $realLastModified = $this->files->lastModified($this->find($name));
-        $cacheLastModified = $this->files->lastModified($filename);
 
-        return $realLastModified > $cacheLastModified;
     }
 
     /**
@@ -71,9 +69,7 @@ class StaticViewCache extends FileViewFinder
     {
         $content = \View::make($name)->with($data)->render();
 
-        $this->files->put($filename, $content);
-
-        return $content;
+        return $this->target->save($filename, $content);
     }
 
     /**
@@ -84,18 +80,10 @@ class StaticViewCache extends FileViewFinder
      */
     private function getContent($filename)
     {
-        return $this->files->get($filename);
+        return $this->target->get($filename);
     }
 
-    /**
-     * Gets the cache path
-     *
-     * @return string
-     */
-    private function getPath($path)
-    {
-        return storage_path(). '/views/' . $path .'/';
-    }
+   
 
     /**
      * Flushs the static cache
@@ -104,13 +92,7 @@ class StaticViewCache extends FileViewFinder
      */
     public function flush($path='static')
     {
-        if ($this->files->isDirectory($this->getPath($path))) {
-            $this->files->cleanDirectory($this->getPath($path));
-        } else {
-            return false;
-        }
-
-        return true;
+        return $this->target->flush($path);
     }
 
     /**
@@ -122,7 +104,25 @@ class StaticViewCache extends FileViewFinder
      */
     private function getFilename($name, $id, $path)
     {
-        return  $this->getPath($path) . md5($name . $id);
+        return $this->target->getKey($name, $id, $path);
+    }
+
+    /**
+     * Gets the target
+     *
+     */
+    public function getTarget()
+    {
+        $config =  \Config::get('view.static_view_cache', 'laravel');
+
+        switch ($config) {
+            case 'laravel':
+                return new \Trapvincenzo\StaticViewCache\TargetInterface\LaravelTarget();
+                break;
+            default:
+                return new \Trapvincenzo\StaticViewCache\TargetInterface\InternalTarget($this, $this->files);
+                break;
+        }
     }
 
 }
